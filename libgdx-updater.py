@@ -18,7 +18,7 @@ def warning_error(msg):
     if not FORCE:
         answer = confirm("abort? (Y/n): ")
         if answer in YES:
-            fatal_error("USER QUIT")            
+            fatal_error("USER QUIT")
 
 def confirm(msg):
     answer = raw_input(msg)
@@ -27,7 +27,7 @@ def confirm(msg):
 def human_time(t):
     minutes = t / 60
     seconds = t % 60
-    return "%.0fm %.1fs" % (minutes, seconds)    
+    return "%.0fm %.1fs" % (minutes, seconds)
 
 # constants
 
@@ -48,7 +48,7 @@ DESKTOP_LIBS =  [
                 "gdx-backend-lwjgl-natives.jar",
                 "gdx-backend-lwjgl-sources.jar",
                 "gdx-natives.jar",
-                ] 
+                ]
 
 ANDROID_LIBS =  [
                 "gdx-backend-android.jar",
@@ -57,9 +57,9 @@ ANDROID_LIBS =  [
                 "armeabi-v7a/libgdx.so",
                 ]
 
-ANDROID_X86_LIBS =  [
-                    "x86/libgdx.so",
-                    ]
+ANDROID_X86_LIBS = [
+                "x86/libgdx.so",
+                   ]
 
 GWT_LIBS =  [
             "gdx-backend-gwt.jar",
@@ -70,7 +70,7 @@ ROBOVM_LIBS = [
               "gdx-backend-robovm.jar",
               "ios/libgdx.a",
               "ios/libObjectAL.a"
-              ]                
+              ]
 
 BOX2D = [
         "gdx-box2d.jar",
@@ -152,15 +152,15 @@ def download_libgdx_zip():
     resp = urllib2.urlopen(url)
     print "downloading file: %s" % url
     total_size = resp.info().getheader('Content-Length').strip()
-    total_size = int(total_size)    
+    total_size = int(total_size)
     # base 10 SI units - following Ubuntu policy because it makes sense - https://wiki.ubuntu.com/UnitsPolicy
     total_size_megabytes = total_size / 1000000.0
     bytes_read = 0
     chunk_size = 10000 # 10kB per chunk
-    while True:        
+    while True:
         chunk = resp.read(chunk_size)
         libgdx.write(chunk)
-        bytes_read += len(chunk)        
+        bytes_read += len(chunk)
         bytes_read_megabytes = bytes_read / 1000000.0
         percent = (bytes_read / float(total_size)) * 100
         sys.stdout.write("\rprogress: {:>8}{:.2f} / {:.2f} MB ({:.0f}% complete)".format(
@@ -177,7 +177,7 @@ def update_files(libs, locations, archive):
         if locations[lib] is None:
             continue
         # it's time for a dirty hack - shame on me
-        if 'sources' in lib:
+        if lib in ("gdx-sources.jar", "gdx-backend-lwjgl-sources.jar", "gdx-backend-android-sources.jar"):
             archive_name = "sources/" + lib
         elif 'box2d' in lib:
             archive_name = "extensions/gdx-box2d/" + lib
@@ -188,22 +188,22 @@ def update_files(libs, locations, archive):
         else:
             archive_name = lib
         # end dirty hack
-        if archive_name in archive.namelist():            
+        if archive_name in archive.namelist():
             if INTERACTIVE:
                 answer = confirm("overwrite %s? (Y/n): " % lib)
-                if answer not in YES:                    
-                    print "skipped: %s" % lib        
+                if answer not in YES:
+                    print "skipped: %s" % lib
                     continue
             with archive.open(archive_name, "r") as fin:
                 filename = os.path.basename(lib)
                 final_path = os.path.join(locations[lib], filename)
                 with open(final_path, "w") as fout:
-                    fout.write(fin.read())                    
+                    fout.write(fin.read())
                 print "extracted to %s" % final_path
         else:
             warning_error("Couldn't find %s in .zip archive" % lib)
 
-        
+
 def run_core(locations, archive):
     title("CORE")
     update_files(CORE_LIBS, locations, archive)
@@ -218,7 +218,7 @@ def run_android_x86(locations, archive):
 
 def run_desktop(locations, archive):
     title("DESKTOP")
-    update_files(DESKTOP_LIBS, locations, archive)    
+    update_files(DESKTOP_LIBS, locations, archive)
 
 def run_gwt(locations, archive):
     title("GWT")
@@ -246,7 +246,7 @@ def search_for_lib_locations(directory):
     locations = {}
     for element in search_list:
         locations[element] = None
-    for (this_dir, dirs, files) in os.walk(directory):        
+    for (this_dir, dirs, files) in os.walk(directory):
         for element in search_list:
             split_path = os.path.split(element)
             path = os.path.split(split_path[0])[-1]
@@ -254,7 +254,7 @@ def search_for_lib_locations(directory):
             for f in files:
                 match = False
                 if filename == f:
-                    f_dir = os.path.split(this_dir)[-1]                    
+                    f_dir = os.path.split(this_dir)[-1]
                     if path == "":
                         match = True
                     else:
@@ -267,7 +267,7 @@ def search_for_lib_locations(directory):
                             answer = confirm("continue? (Y/n): ")
                             if answer not in YES:
                                 fatal_error("USER ABORT")
-                    locations[element] = this_dir                   
+                    locations[element] = this_dir
 
     found_libraries = [lib for lib, loc in locations.items() if locations[lib] != None]
     if found_all_in_set(CORE_LIBS, found_libraries):
@@ -298,7 +298,7 @@ def search_for_lib_locations(directory):
         if loc != None:
             print "found %s -> %s" % (lib, loc)
     return platforms, locations
-        
+
 
 def found_all_in_set(lib_set, found_list):
     for lib in lib_set:
@@ -313,7 +313,7 @@ def found_any_in_set(lib_set, found_list):
     return False
 
 def main():
-    global ARCHIVE    
+    global ARCHIVE
     start_time = time.time()
     print "finding local libraries in %s" % PROJECT_DIR
     platforms, locations = search_for_lib_locations(PROJECT_DIR)
@@ -333,10 +333,10 @@ def main():
         mtime = get_remote_archive_mtime()
         print "lastest nightly from server: %s" % mtime
         if not FORCE:
-            answer = confirm("replace local libraries with files from latest nightly?(Y/n): ")    
+            answer = confirm("replace local libraries with files from latest nightly?(Y/n): ")
             if answer not in YES:
                 fatal_error("USER QUIT")
-        libgdx = download_libgdx_zip()        
+        libgdx = download_libgdx_zip()
     else:
         if not os.path.exists(ARCHIVE):
             fatal_error("archive file not found: %s" % ARCHIVE)
@@ -347,13 +347,13 @@ def main():
             else:
                 ARCHIVE = selected
         if not FORCE:
-            answer = confirm("replace local libraries with files from '%s'?(Y/n): " % os.path.basename(ARCHIVE))    
+            answer = confirm("replace local libraries with files from '%s'?(Y/n): " % os.path.basename(ARCHIVE))
             if answer not in YES:
                 fatal_error("USER QUIT")
         libgdx = open(ARCHIVE, "r")
 
     with zipfile.ZipFile(libgdx) as archive:
-        if "core" in platforms:        
+        if "core" in platforms:
             run_core(locations, archive)
         if "desktop" in platforms:
             run_desktop(locations, archive)
@@ -370,7 +370,7 @@ def main():
         if "bullet" in platforms:
             run_bullet(locations,archive)
 
-    duration = time.time() - start_time    
+    duration = time.time() - start_time
     print "finished updates in %s" % human_time(duration)
     libgdx.close()
 
@@ -381,7 +381,7 @@ def find_zips(path):
         if len(pieces) > 0:
             if (pieces[-1] == "zip"):
                 zips.append(item)
-    return zips    
+    return zips
 
 def select_archive_from_dir(archive_dir):
     zips = find_zips(archive_dir)
