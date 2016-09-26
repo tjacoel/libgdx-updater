@@ -36,7 +36,7 @@ YES = ['y', 'ye', 'yes', '']
 DATE_RE = r"[0-9]{1,2}-[A-Za-z]{3,4}-[0-9]{4}\s[0-9]+:[0-9]+"
 REMOTE_DATE_FORMAT = "%d-%b-%Y %H:%M"
 
-SUPPORTED_PLATFORMS = ['android', 'android_x86', 'desktop', 'gwt', 'ios', 'box2d', 'bullet']
+SUPPORTED_PLATFORMS = ['android', 'android_x86', 'desktop', 'gwt', 'ios', 'box2d', 'freetype', 'bullet']
 
 CORE_LIBS =     [
                 "gdx.jar",
@@ -77,6 +77,16 @@ BOX2D = [
         "gdx-box2d-sources.jar",
         "gdx-box2d-gwt-sources.jar",
         "ios/libgdx-box2d.a"
+        ]
+
+FREETYPE = [
+        "gdx-freetype.jar",
+        "gdx-freetype-natives.jar",
+        "armeabi/libgdx-freetype.so",
+        "armeabi-v7a/libgdx-freetype.so",
+        "x86/libgdx-freetype.so",
+        "sources/gdx-freetype-sources.jar",
+        "ios/libgdx-freetype.a"
         ]
 
 BULLET = [
@@ -166,6 +176,8 @@ def update_files(libs, locations, archive):
             archive_name = "sources/gdx-sources.jar"        
         elif 'box2d' in lib:
             archive_name = "extensions/gdx-box2d/" + lib
+        elif 'freetype' in lib:
+            archive_name = "extensions/gdx-freetype/" + lib
         elif 'bullet' in lib:
             archive_name = "extensions/gdx-bullet/" + lib
         else:
@@ -215,13 +227,17 @@ def run_box2d(locations, archive):
     title("EXTENSION: BOX2D")
     update_files(BOX2D, locations, archive)
 
+def run_freetype(locations, archive):
+    title("EXTENSION: FREETYPE")
+    update_files(FREETYPE, locations, archive)
+
 def run_bullet(locations, archive):
     title("EXTENSION: BULLET")
     update_files(BULLET, locations, archive)
 
 def search_for_lib_locations(directory):    
     platforms = []
-    search_list = CORE_LIBS + DESKTOP_LIBS + ANDROID_LIBS + ANDROID_X86_LIBS + GWT_LIBS + ROBOVM_LIBS + BOX2D + BULLET
+    search_list = CORE_LIBS + DESKTOP_LIBS + ANDROID_LIBS + ANDROID_X86_LIBS + GWT_LIBS + ROBOVM_LIBS + BOX2D + FREETYPE + BULLET
     locations = {}    
     for element in search_list:
         locations[element] = None
@@ -263,6 +279,8 @@ def search_for_lib_locations(directory):
         platforms.append("ios")
     if found_any_in_set(BOX2D, found_libraries):
         platforms.append("box2d")
+    if found_any_in_set(FREETYPE, found_libraries):
+        platforms.append("freetype")
     if found_any_in_set(BULLET, found_libraries):
         platforms.append("bullet")
 
@@ -342,6 +360,8 @@ def main():
             run_ios(locations, archive)
         if "box2d" in platforms:
             run_box2d(locations, archive)
+        if "freetype" in platforms:
+            run_freetype(locations, archive)
         if "bullet" in platforms:
             run_bullet(locations,archive)
 
@@ -375,3 +395,4 @@ def title(text):
 
 if __name__ == "__main__":
     main()
+
