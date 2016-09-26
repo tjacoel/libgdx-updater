@@ -46,20 +46,25 @@ CORE_LIBS =     [
 DESKTOP_LIBS =  [
                 "gdx-backend-lwjgl.jar",
                 "gdx-backend-lwjgl-natives.jar",
+                "gdx-backend-lwjgl-sources.jar",
                 "gdx-natives.jar",
                 ] 
 
 ANDROID_LIBS =  [
                 "gdx-backend-android.jar",
+                "gdx-backend-android-sources.jar",
                 "armeabi/libgdx.so",
                 "armeabi-v7a/libgdx.so",
                 ]
 
-ANDROID_X86_LIBS = [
-                "x86/libgdx.so",
-                   ]
+ANDROID_X86_LIBS =  [
+                    "x86/libgdx.so",
+                    ]
 
-GWT_LIBS = ["gdx-backend-gwt.jar"]
+GWT_LIBS =  [
+            "gdx-backend-gwt.jar",
+            "gdx-backend-gwt-sources.jar",
+            ]
 
 ROBOVM_LIBS = [
               "gdx-backend-robovm.jar",
@@ -74,7 +79,7 @@ BOX2D = [
         "armeabi/libgdx-box2d.so",
         "armeabi-v7a/libgdx-box2d.so",
         "x86/libgdx-box2d.so",
-        "gdx-box2d-sources.jar",
+        "sources/gdx-box2d-sources.jar",
         "gdx-box2d-gwt-sources.jar",
         "ios/libgdx-box2d.a"
         ]
@@ -172,8 +177,8 @@ def update_files(libs, locations, archive):
         if locations[lib] is None:
             continue
         # it's time for a dirty hack - shame on me
-        if lib == "gdx-sources.jar":
-            archive_name = "sources/gdx-sources.jar"        
+        if 'sources' in lib:
+            archive_name = "sources/" + lib
         elif 'box2d' in lib:
             archive_name = "extensions/gdx-box2d/" + lib
         elif 'freetype' in lib:
@@ -235,10 +240,10 @@ def run_bullet(locations, archive):
     title("EXTENSION: BULLET")
     update_files(BULLET, locations, archive)
 
-def search_for_lib_locations(directory):    
+def search_for_lib_locations(directory):
     platforms = []
     search_list = CORE_LIBS + DESKTOP_LIBS + ANDROID_LIBS + ANDROID_X86_LIBS + GWT_LIBS + ROBOVM_LIBS + BOX2D + FREETYPE + BULLET
-    locations = {}    
+    locations = {}
     for element in search_list:
         locations[element] = None
     for (this_dir, dirs, files) in os.walk(directory):        
